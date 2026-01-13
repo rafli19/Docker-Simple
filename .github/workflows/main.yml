@@ -1,33 +1,32 @@
 name: CI CD Docker
 
 on:
-  push:
+  push: # jalankan ketika di push di branch ini
     branches:
-      - main # Jalan saat push ke branch main
+      - main
       - master
-  pull_request:
+  pull_request: # jalankan ketika PR di branch ini
     branches:
-      - main # Jalan saat PR ke branch main
+      - main
       - master
 
 jobs:
-  build: # Nama job (bebas)
-    runs-on: ubuntu-latest # Mesin virtual
-
+  build: # nama job
+    runs-on: ubuntu-latest # mesin virtual
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Prebuild action
+        uses: actions/checkout@v4 # prebuilt action
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-
-      - name: Install Dependencies
-        run: npm install
-
-      # - name: Run Tests
-      #   run: npm test --if-present
+      - name: Build Docker Image
+        run: docker build -t my-app:${{ github.sha }} .
 
       - name: Build Success
-        run: echo "Build Success"
+        run: echo "Docker Image Build Success"
+
+  deploy: # nama job
+    needs: build
+    runs-on: ubuntu-latest # mesin virtual
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: trigger Deployment Triggered
+        run: echo "Deployment Triggered"
